@@ -22,7 +22,7 @@ def trim_stream():
         if size_bytes > max_bytes:
             del stream[0]
         else:
-            print('process bytes:', size_bytes, 'stream count:', len(stream), 'pid:', os.getpid())  # debug output
+            print('PROCESS bytes:', size_bytes, 'STREAM count:', len(stream), 'PID:', os.getpid())  # debug output
             return
     
 
@@ -30,21 +30,22 @@ def trim_stream():
 def add_msg():
     payload = request.json
     stream.append(payload)
-    print('message received from:', request.remote_addr, 'META:', payload['meta'])
+    print('RECEIVED from:', request.remote_addr, 'META:', payload['meta'])
     trim_stream()  # prevent unlimited growth of stream of consciousness
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 @app.route('/fetch', methods=['GET'])    
 def fetch_msg():
     result = stream
-    # filter based on query
+    # filter based on type
     if 'type' in request.args:
         result = [i for i in result if request.args['type'] in i['meta']['type']]    
+    # filter based on max results
     if 'maxresults' in request.args:
         result = result[-int(request.args['maxresults']):]
     else:
         result = result[-5:]  # return only last 5 by default
-    print('fetch from:', request.remote_addr, 'query:', request.query_string.decode(), 'count:', len(result))
+    print('FETCH from:', request.remote_addr, 'QUERY:', request.query_string.decode(), 'COUNT:', len(result))
     return flask.Response(json.dumps(result), mimetype='application/json')
 
 
