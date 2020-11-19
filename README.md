@@ -13,7 +13,7 @@ Stream of Consciousness REST microservice. Nexus of thought. We can already solv
 Use HTTP POST to register new messages at the root endpoint `/`. New message must be a JSON object with the following keys:
 
 | Key | Explanation | Examples |
-|---|---|
+|---|---|---|
 | msg | Plain English message containing a single "thought" | `I see a dog`, `David said: Go to the store and get some milk` |
 | key | Taxonomical key, similar to routing key used in AMQP. Metadata of the message. | `input.audio.speech.David`, `processing.memory.episodic` |
 | sid | Service ID. Unique identifier for source service. Allows for accountability, self identification, version control, investigation, filtration, etc | `c64c2e57-adf2-4602-85ee-ba09185c37c3`, `ASR_QuantumQuintus_v14.0.23444` |
