@@ -1,29 +1,60 @@
 # Nexus REST Microservice
 
-Stream of consciousness nexus REST microservice
+Stream of Consciousness REST microservice. Nexus of thought. We can already solve many problems that deal with cognition; recall, planning, and execution. What we need is a way to integrate it all together. 
 
-- Aggregate messages from arbitrary services
-- Serve message to arbitrary services upon request
-- Similar to short-term memory of cognitive/consciousness systems
+- Scalable. Receive and serve messages to/from arbitrary services
+- Biomimetic. Models working memory aspect of cognition
+- Multimodal. Integrate information from disparate sources, such as sight, sound, long term memory, encyclopedic knowledge, etc.
 
-# Usage 
+# Usage
 
-1. Run with `python nexus.py`
-2. POST new messages to specified `port` number
-3. GET last *n* messages from specified `port`
-4. Messages consist of `data` and `meta`
+## Adding Messages
 
-# Theory
+Use HTTP POST to register new messages at the root endpoint `/`. New message must be a JSON object with the following keys:
 
-## Biomimicry
+| Key | Explanation | Examples |
+|---|---|
+| msg | Plain English message containing a single "thought" | `I see a dog`, `David said: Go to the store and get some milk` |
+| key | Taxonomical key, similar to routing key used in AMQP. Metadata of the message. | `input.audio.speech.David`, `processing.memory.episodic` |
+| sid | Service ID. Unique identifier for source service. Allows for accountability, self identification, version control, investigation, filtration, etc | `c64c2e57-adf2-4602-85ee-ba09185c37c3`, `ASR_QuantumQuintus_v14.0.23444` |
 
-Stream of consciousness (SoC) is an aggregation, or confluence, of sensations, thoughts, ideas, and memories. Stream of consciousness is a critical component to intelligence and real-time performance for humans and animals. 
-*Working memory* is approximately the size of the stream of consciousness, or how many messages can be simultaneously held in the stream of consciousness. Over time, messages are cleared or purged from the SoC to maintain performance.
-Some messages are stored in long term memory (LTM) for later retrieval. This function can be approximated by allowing arbitrary services to contribute to the SoC.
+The Nexus service will add two more keys to each message: `mid` and `time`. Time is UNIX epoch timestamp. Mid is Message ID, a UUID assigned to each message. This allows for other messages to definitively reference each other. 
 
-## Data and Metadata
+For instance, let's say an action generating service proposes the action `Pet the dog` in response to the `I see a dog` message. Evaluation services can trace the series of messages, stream of consciousness, that resulted in a given action recommendation.
 
-Messages within the SoC all contain specific, relevant information. For instance, a sensation, memory, or thought contain their specific relevant information but they also implicitly contain metadata.
-That is to say that you do not confuse images with sounds, or memories with realtime sensations. This happens in spite of everything being accessible to the same SoC, as we have a singular consciousness. 
-Metadata can contain information that differentiates types of messages from one another but also adds context, such as chronological time. 
-Chronological time is critical for real-time functionality, forming cohesive and coherent understanding of the world.
+## Fetching Messages
+
+Use HTTP GET to fetch messages at the root endpoint `/`. Use argument parameters to filter messages. Accepted arguments are:
+
+| Argument | Explanation |
+|---|---|
+| `keyword` | Search term that must be present in message to return. Searches entire message, including metadata |
+| `start` | Filter out any messages occuring before this filter |
+| `end` | Filter out any messages occurring after this filter |
+
+Example: `GET http://nexus:9999/?keyword=dog&start=1095379199&end=1095384199`
+
+Each argument is optional but recommended. Reducing query size can increase performance and reduce noise. 
+
+## Best Practices
+
+- Do not use Nexus for raw data (image, audio, accelerometer, etc)
+- Use Nexus only for highest order cognition, thought, planning, and contemplation - ask the big questions. 
+- Services should keep track of their own requests, only requesting exactly what they need instead of everything
+- Services should be responsible with their posting of new messages. They should only POST when they have something meaningful to add. 
+- Services should do one thing, and do it well. 
+
+# Services
+
+## Types
+
+Non-exhaustive list of types of services:
+
+- Automatic Speech Recognition (ASR)
+- Object detection
+- Long term retention (recall)
+- Encyclopedic knowledge
+- Action recommendation generator
+- Moral and ethical evaluation
+- Motor action execution
+- Speech generation
