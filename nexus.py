@@ -28,9 +28,10 @@ def add():  # REQUIRED: time, vector
     global data
     try:
         payload = request.json
+        print(payload['vector'])
         info = payload
         info['time'] = float(payload['time'])
-        info['vector'] = np.fromstring(payload['vector'])
+        info['vector'] = np.frombuffer(payload['vector'])
         data.append(info)
         save(data)
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
