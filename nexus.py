@@ -12,11 +12,6 @@ log.setLevel(logging.ERROR)
 app = flask.Flask('nexus')
 
 
-def save(data, filepath='nexus.pickle'):
-    with open(filepath, 'wb') as outfile:
-        pickle.dump(data, outfile)
-
-
 def load(filepath='nexus.pickle'):
     with open(filepath, 'rb') as infile:
         data = pickle.load(infile)
@@ -50,7 +45,7 @@ def add():  # REQUIRED: time, vector
         payload = request.json
         payload = dejsonify(payload)
         data.append(payload)
-        save(data)
+        #save(data)
         return 'successfully added record', 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
@@ -60,12 +55,10 @@ def add():  # REQUIRED: time, vector
 @app.route('/search', methods=['POST'])
 def search():  # REQUIRED: vector, field, count
     global data
-    print('search?')
     try:
         results = list()
         payload = request.json
         payload = dejsonify(payload)
-        #print(payload)
         field = payload['field']
         count = payload['count']
         vector = payload['vector']
@@ -75,7 +68,6 @@ def search():  # REQUIRED: vector, field, count
                 info = i
                 info['score'] = score
                 results.append(info)
-                #print(info)
             except Exception as oops:
                 print(oops)
                 continue
@@ -109,6 +101,18 @@ def bound():
                 continue
         results = jsonify(results)
         return json.dumps(results), 200, {'ContentType':'application/json'}
+    except Exception as oops:
+        print(oops)
+        return str(oops), 500, {'ContentType':'application/json'}
+
+
+@app.route('/save', methods=['POST'])
+def save():
+    global data
+    try:
+        with open('nexus.pickle', 'wb') as outfile:
+            pickle.dump(data, outfile)
+        return 'successfully saved data', 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
         return str(oops), 500, {'ContentType':'application/json'}
