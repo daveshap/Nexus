@@ -18,9 +18,29 @@ def save(data, filepath='nexus.pickle'):
 
 
 def load(filepath='nexus.pickle'):
-    with open(filepath, 'wb') as infile:
+    with open(filepath, 'rb') as infile:
         data = pickle.load(infile)
     return data
+
+
+def jsonify(payload):  # get it ready for output
+    if isinstance(payload, dict):
+        vector = list(payload['vector'])
+        payload['vector'] = vector
+        return payload
+    elif isinstance(payload, list):
+        results = list()
+        for i in payload:
+            vector = list(i['vector'])
+            i['vector'] = vector
+            results.append(i)
+        return results
+
+
+def dejsonify(payload):
+    vector = payload['vector'].replace('[','').replace(']','')
+    payload['vector'] = np.fromstring(vector, dtype=float, sep=',')
+    return payload
 
 
 @app.route('/add', methods=['POST'])
@@ -28,45 +48,47 @@ def add():  # REQUIRED: time, vector
     global data
     try:
         payload = request.json
-        print(payload['vector'])
-        info = payload
-        info['time'] = float(payload['time'])
-        info['vector'] = np.frombuffer(payload['vector'])
-        data.append(info)
+        payload = dejsonify(payload)
+        data.append(payload)
         save(data)
-        return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+        return 'successfully added record', 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
-        return json.dumps({'success':False, 'error': oops}), 500, {'ContentType':'application/json'}
+        return str(oops), 500, {'ContentType':'application/json'}
 
 
 @app.route('/search', methods=['POST'])
 def search():  # REQUIRED: vector, field, count
     global data
+    print('search?')
     try:
         results = list()
         payload = request.json
-        vector = np.fromstring(payload['vector'])
+        payload = dejsonify(payload)
+        #print(payload)
         field = payload['field']
-        count = int(payload['count'])
+        count = payload['count']
+        vector = payload['vector']
         for i in data:
             try:
                 score = np.dot(i[field], vector)
+                info = i
+                info['score'] = score
+                results.append(info)
+                #print(info)
             except Exception as oops:
-                #print(oops)
+                print(oops)
                 continue
-            info = i
-            info['score'] = score
-            results.append(info)
         ordered = sorted(results, key=lambda d: d['score'], reverse=True)
+        ordered = jsonify(ordered)
         try:
             ordered = ordered[0:count]
-            return ordered, 200, {'ContentType':'application/json'}
+            return json.dumps(ordered), 200, {'ContentType':'application/json'}
         except:
-            return ordered, 200, {'ContentType':'application/json'}
+            return json.dumps(ordered), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
-        return json.dumps({'success':False, 'error': oops}), 500, {'ContentType':'application/json'}
+        return str(oops), 500, {'ContentType':'application/json'}
 
 
 @app.route('/bound', methods=['POST'])
@@ -75,6 +97,7 @@ def bound():
     try:
         results = list()
         payload = request.json
+        payload = dejsonify(payload)
         field = payload['field']
         lower_bound = payload['lower_bound']
         upper_bound = payload['upper_bound']
@@ -84,15 +107,17 @@ def bound():
                     results.append(i)
             except:
                 continue
-        return results, 200, {'ContentType':'application/json'}
+        results = jsonify(results)
+        return json.dumps(results), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
-        return json.dumps({'success':False, 'error': oops}), 500, {'ContentType':'application/json'}
+        return str(oops), 500, {'ContentType':'application/json'}
 
 
 if __name__ == '__main__':
     try:
         data = load()
-    except:
+    except Exception as oops:
+        print(oops)
         data = list()
     app.run(host='0.0.0.0', port=8888)
