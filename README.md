@@ -10,3 +10,5 @@ Still a work in progress. Will be optimized for scale in the future. New endpoin
 ## Usage
 
 Look at `test.py` for examples
+
+![Nexus Conceptual Art](https://github.com/daveshap/Nexus/blob/main/images/nexus.jpg?raw=true)
