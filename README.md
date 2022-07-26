@@ -11,4 +11,4 @@ Still a work in progress. Will be optimized for scale in the future. New endpoin
 
 Look at `test.py` for examples
 
-![Nexus Conceptual Art](https://github.com/daveshap/Nexus/blob/main/images/nexus.jpg?raw=true)
+![Nexus Conceptual Art](https://raw.githubusercontent.com/daveshap/Nexus/main/nexus.jpg)
