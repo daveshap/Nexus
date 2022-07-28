@@ -72,11 +72,38 @@ def search():  # REQUIRED: vector, field, count
                 print(oops)
                 continue
         ordered = sorted(results, key=lambda d: d['score'], reverse=True)
-        ordered = jsonify(ordered)
         try:
             ordered = ordered[0:count]
+            ordered = jsonify(ordered)
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
         except:
+            ordered = jsonify(ordered)
+            return json.dumps(ordered), 200, {'ContentType':'application/json'}
+    except Exception as oops:
+        print(oops)
+        return str(oops), 500, {'ContentType':'application/json'}
+
+
+@app.route('/fetch', methods=['POST'])
+def fetch():  # REQUIRED: field, count, value, sortby, reverse
+    global data
+    try:
+        results = list()
+        payload = request.json
+        payload = dejsonify(payload)
+        value = payload['value']
+        field = payload['field']
+        reverse = payload['reverse']  # boolean True == descending order, False == ascending
+        sortby = payload['sortby']
+        count = payload['count']
+        results = [i for i in data if i[field] == value]
+        ordered = sorted(results, key=lambda d: d[sortby], reverse=reverse)
+        try:
+            ordered = ordered[0:count]
+            ordered = jsonify(ordered)
+            return json.dumps(ordered), 200, {'ContentType':'application/json'}
+        except:
+            ordered = jsonify(ordered)
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
