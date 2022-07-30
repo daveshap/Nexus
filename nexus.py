@@ -18,34 +18,12 @@ def load(filepath='nexus.pickle'):
     return data
 
 
-#def jsonify(payload):  # get it ready for output (numpy arrays are not JSON serializable)
-#    if isinstance(payload, dict):
-#        vector = list(payload['vector'])
-#        payload['vector'] = vector
-#        return payload
-#    elif isinstance(payload, list):
-#        results = list()
-#        for i in payload:
-#            vector = list(i['vector'])
-#            i['vector'] = vector
-#            results.append(i)
-#        return results
-
-
-#def dejsonify(payload):
-#    vector = payload['vector'].replace('[','').replace(']','')
-#    payload['vector'] = np.fromstring(vector, dtype=float, sep=',')
-#    return payload
-
-
 @app.route('/add', methods=['POST'])
 def add():  # REQUIRED: time, vector
     global data
     try:
         payload = request.json
-        #payload = dejsonify(payload)
         data.append(payload)
-        #save(data)
         print(payload)
         return 'successfully added record', 200, {'ContentType':'application/json'}
     except Exception as oops:
@@ -54,19 +32,16 @@ def add():  # REQUIRED: time, vector
 
 
 @app.route('/search', methods=['POST'])
-def search():  # REQUIRED: vector, field, count
+def search():  # REQUIRED: vector, count
     global data
     try:
         results = list()
         payload = request.json
-        #payload = dejsonify(payload)
-        #field = payload['field']
-        field = 'vector'  # assume that we will always search the vector field
         count = payload['count']
         vector = payload['vector']
         for i in data:
             try:
-                score = np.dot(i[field], vector)
+                score = np.dot(i['vector'], vector)
                 info = i
                 info['score'] = score
                 results.append(info)
@@ -74,12 +49,10 @@ def search():  # REQUIRED: vector, field, count
                 print(oops)
                 continue
         ordered = sorted(results, key=lambda d: d['score'], reverse=True)
-        try:
+        try:  # just hack off the ordered list
             ordered = ordered[0:count]
-            #ordered = jsonify(ordered)
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
-        except:
-            #ordered = jsonify(ordered)
+        except:  # if it barfs, send back the whole list because it's too short
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
@@ -92,20 +65,17 @@ def fetch():  # REQUIRED: field, count, value, sortby, reverse
     try:
         results = list()
         payload = request.json
-        #payload = dejsonify(payload)
-        value = payload['value']
-        field = payload['field']
+        field = payload['field']  # which field to search each record for
+        value = payload['value']  # value of field to match
         reverse = payload['reverse']  # boolean True == descending order, False == ascending
-        sortby = payload['sortby']
-        count = payload['count']
+        sortby = payload['sortby']  # which field to sort by (such as time)
+        count = payload['count']  # total number to return
         results = [i for i in data if i[field] == value]
         ordered = sorted(results, key=lambda d: d[sortby], reverse=reverse)
         try:
             ordered = ordered[0:count]
-            #ordered = jsonify(ordered)
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
         except:
-            #ordered = jsonify(ordered)
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
@@ -118,8 +88,6 @@ def bound():
     try:
         results = list()
         payload = request.json
-        #payload = dejsonify(payload)
-        #field = payload['field']
         field = 'time'
         lower_bound = payload['lower_bound']
         upper_bound = payload['upper_bound']
@@ -129,7 +97,6 @@ def bound():
                     results.append(i)
             except:
                 continue
-        #results = jsonify(results)
         return json.dumps(results), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
