@@ -27,20 +27,22 @@ def save():
 
 if __name__ == '__main__':
     dimension = 1024
-    count = 5000
-    count = 0
+    count = 50
+    #count = 0
     np.random.seed(1)             
     print('loading up the database')
     for n in range(0, count):
-        vector = list(np.random.random(dimension).astype('float16'))
-        info = {'vector': str(vector), 'time': time(), 'uuid': str(uuid4())}
+        #vector = list(np.random.random(dimension).astype('float16'))
+        vector = list(np.random.random(dimension).astype('float'))
+        info = {'vector': vector, 'time': time(), 'uuid': str(uuid4())}
         start = time()
         send(info)
         end = time()
         print(n, end - start)
     save()
-    vector = list(np.random.random(dimension).astype('float16'))
-    info = {'vector': str(vector), 'field': 'vector', 'count': 5}
+    #vector = list(np.random.random(dimension).astype('float16'))
+    vector = list(np.random.random(dimension).astype('float'))
+    info = {'vector': vector, 'field': 'vector', 'count': 5}
     start = time()
     results = search(info)
     end = time()

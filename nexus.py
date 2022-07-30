@@ -18,24 +18,24 @@ def load(filepath='nexus.pickle'):
     return data
 
 
-def jsonify(payload):  # get it ready for output
-    if isinstance(payload, dict):
-        vector = list(payload['vector'])
-        payload['vector'] = vector
-        return payload
-    elif isinstance(payload, list):
-        results = list()
-        for i in payload:
-            vector = list(i['vector'])
-            i['vector'] = vector
-            results.append(i)
-        return results
+#def jsonify(payload):  # get it ready for output (numpy arrays are not JSON serializable)
+#    if isinstance(payload, dict):
+#        vector = list(payload['vector'])
+#        payload['vector'] = vector
+#        return payload
+#    elif isinstance(payload, list):
+#        results = list()
+#        for i in payload:
+#            vector = list(i['vector'])
+#            i['vector'] = vector
+#            results.append(i)
+#        return results
 
 
-def dejsonify(payload):
-    vector = payload['vector'].replace('[','').replace(']','')
-    payload['vector'] = np.fromstring(vector, dtype=float, sep=',')
-    return payload
+#def dejsonify(payload):
+#    vector = payload['vector'].replace('[','').replace(']','')
+#    payload['vector'] = np.fromstring(vector, dtype=float, sep=',')
+#    return payload
 
 
 @app.route('/add', methods=['POST'])
@@ -43,9 +43,10 @@ def add():  # REQUIRED: time, vector
     global data
     try:
         payload = request.json
-        payload = dejsonify(payload)
+        #payload = dejsonify(payload)
         data.append(payload)
         #save(data)
+        print(payload)
         return 'successfully added record', 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
@@ -58,8 +59,9 @@ def search():  # REQUIRED: vector, field, count
     try:
         results = list()
         payload = request.json
-        payload = dejsonify(payload)
-        field = payload['field']
+        #payload = dejsonify(payload)
+        #field = payload['field']
+        field = 'vector'  # assume that we will always search the vector field
         count = payload['count']
         vector = payload['vector']
         for i in data:
@@ -74,10 +76,10 @@ def search():  # REQUIRED: vector, field, count
         ordered = sorted(results, key=lambda d: d['score'], reverse=True)
         try:
             ordered = ordered[0:count]
-            ordered = jsonify(ordered)
+            #ordered = jsonify(ordered)
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
         except:
-            ordered = jsonify(ordered)
+            #ordered = jsonify(ordered)
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
@@ -90,7 +92,7 @@ def fetch():  # REQUIRED: field, count, value, sortby, reverse
     try:
         results = list()
         payload = request.json
-        payload = dejsonify(payload)
+        #payload = dejsonify(payload)
         value = payload['value']
         field = payload['field']
         reverse = payload['reverse']  # boolean True == descending order, False == ascending
@@ -100,10 +102,10 @@ def fetch():  # REQUIRED: field, count, value, sortby, reverse
         ordered = sorted(results, key=lambda d: d[sortby], reverse=reverse)
         try:
             ordered = ordered[0:count]
-            ordered = jsonify(ordered)
+            #ordered = jsonify(ordered)
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
         except:
-            ordered = jsonify(ordered)
+            #ordered = jsonify(ordered)
             return json.dumps(ordered), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
@@ -116,8 +118,9 @@ def bound():
     try:
         results = list()
         payload = request.json
-        payload = dejsonify(payload)
-        field = payload['field']
+        #payload = dejsonify(payload)
+        #field = payload['field']
+        field = 'time'
         lower_bound = payload['lower_bound']
         upper_bound = payload['upper_bound']
         for i in self.data:
@@ -126,7 +129,7 @@ def bound():
                     results.append(i)
             except:
                 continue
-        results = jsonify(results)
+        #results = jsonify(results)
         return json.dumps(results), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
