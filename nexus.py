@@ -24,7 +24,7 @@ def add():  # REQUIRED: time, vector
     try:
         payload = request.json
         data.append(payload)
-        print(payload)
+        print(payload['time'], payload['service'], payload['content'])
         return 'successfully added record', 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
@@ -88,12 +88,11 @@ def bound():
     try:
         results = list()
         payload = request.json
-        field = 'time'
         lower_bound = payload['lower_bound']
         upper_bound = payload['upper_bound']
-        for i in self.data:
+        for i in data:
             try:
-                if i[field] >= lower_bound and i[field] <= upper_bound:
+                if i['time'] >= lower_bound and i['time'] <= upper_bound:
                     results.append(i)
             except:
                 continue
