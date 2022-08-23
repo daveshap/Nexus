@@ -18,6 +18,11 @@ def load(filepath='nexus.pickle'):
     return data
 
 
+def save_file(filepath, content):
+    with open(filepath, 'w', encoding='utf-8') as outfile:
+        outfile.write(content)
+
+
 @app.route('/add', methods=['POST'])
 def add():  # REQUIRED: time, vector
     global data
@@ -25,6 +30,8 @@ def add():  # REQUIRED: time, vector
         payload = request.json
         data.append(payload)
         print(payload['time'], payload['service'], payload['content'])
+        filename = '%s_%s.txt' % (payload['time'], payload['service'])
+        save_file('logs/%s' % filename, payload['content'])
         return 'successfully added record', 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)

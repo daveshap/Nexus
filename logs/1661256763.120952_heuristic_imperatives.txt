@@ -1,0 +1,5 @@
+Heuristic imperatives: Ideas to increase understanding: -We could provide more information about the game of chess, including strategies for winning and common mistakes that are made.
+-We could have the first man talk aloud as he replays the game in his head, so that we can hear his thought process and see where he goes wrong.
+-We could have the first man write down his thoughts as he replays the game, so that we can see his thought process and where he goes wrong.
+-We could have the second man talk aloud as he explains the mistake the first man made, so that we can understand his thinking process.
+-We could have the second man write down his explanation of the mistake the first man made, so that we can understand his thinking process.
