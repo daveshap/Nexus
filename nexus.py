@@ -7,6 +7,9 @@ import numpy as np
 import pickle
 
 
+nexus_port = int(os.getenv('NEXUS_PORT', 8888))
+
+
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 app = flask.Flask('nexus')
@@ -127,4 +130,4 @@ if __name__ == '__main__':
     except Exception as oops:
         print(oops)
         data = list()
-    app.run(host='0.0.0.0', port=8888)
+    app.run(host='0.0.0.0', port=nexus_port)
