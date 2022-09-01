@@ -13,14 +13,6 @@ def search(payload):
     return response.json()
 
 
-def save():
-    url = 'http://127.0.0.1:8888/save'
-    response = requests.request(method='POST', url=url)
-    print(response.text)
-    
-    
-
-
 if __name__ == '__main__':
     for n in range(0, 50):
         info = {'vector': [0,1], 'content': 'bacon', 'microservice': 'test'}

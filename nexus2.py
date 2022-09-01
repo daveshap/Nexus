@@ -38,6 +38,8 @@ def add():  # REQUIRED: content, vector, microservice?
         # TODO - handle vector here? 
         # TODO - microservice?
         # TODO - validate message payload
+        # TODO - model
+        # TODO - vector model?
         save_log(payload)
         print(payload)
         return 'successfully added record', 200, {'ContentType':'application/json'}
