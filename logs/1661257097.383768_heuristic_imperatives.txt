@@ -1,7 +1,0 @@
-Heuristic imperatives: Questions to increase understanding: 1. What is the nature of the problem?
-2. What are the possible causes of the problem?
-3. What are the consequences of the problem?
-4. Who is affected by the problem?
-5. What are the possible solutions to the problem?
-6. What are the pros and cons of each potential solution?
-7. How can the problem be prevented in the future?
