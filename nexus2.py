@@ -33,14 +33,15 @@ def save_log(payload):
 def add():  # REQUIRED: content, microservice
     try:
         payload = request.json
-        # validating the payload
+        # validate the payload
         result = dict()
         result['content'] = payload['content']
         result['microservice'] = payload['microservice']
         result['model'] = payload['model']
         result['type'] = payload['type']
+        # get nexus specific info
         embeddings = embed([result['content']])
-        result['vector'] = embeddings.numpy().tolist()
+        result['vector'] = embeddings.numpy().tolist()[0]
         result['time'] = time()
         result['uuid'] = str(uuid4())
         save_log(result)

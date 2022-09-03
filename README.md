@@ -9,6 +9,13 @@ Still a work in progress. Will be optimized for scale in the future. New endpoin
 
 ![Nexus Conceptual Art](https://raw.githubusercontent.com/daveshap/Nexus/main/nexus.jpg)
 
+## TODO List
+
+1. Firm up required endpoints (I think we're closing in on this)
+2. Integrate blockchain for security
+3. Integrate semantic search for speed
+4. Integrate knowledge graph for speed
+
 # Add message
 
 - URL: `/add`
