@@ -1,4 +1,5 @@
 import requests
+from time import time
 
 
 def send(payload):
@@ -14,6 +15,8 @@ def search(payload):
 
 
 if __name__ == '__main__':
+    info = {'content': 'bacon', 'microservice': 'test', 'model': 'there is no spoon', 'type': 'test'}
     for n in range(0, 50):
-        info = {'vector': [0,1], 'content': 'bacon', 'microservice': 'test'}
+        start = time()
         send(info)
+        print(time() - start)

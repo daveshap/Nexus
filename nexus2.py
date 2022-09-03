@@ -6,6 +6,7 @@ import logging
 import numpy as np
 from uuid import uuid4
 from time import time
+import tensorflow_hub as hub
 
 
 log = logging.getLogger('werkzeug')
@@ -25,23 +26,25 @@ def load_data():
 def save_log(payload):
     filename = payload['uuid'] + '.json'
     with open('logs/%s' % filename, 'w', encoding='utf-8') as outfile:
-        #json.dump(payload, outfile, indent=1, ensure_ascii=False, sort_keys=True)
-        json.dump(payload, outfile, ensure_ascii=False, sort_keys=True)
+        json.dump(payload, outfile, ensure_ascii=False, sort_keys=True, indent=1)
 
 
 @app.route('/add', methods=['POST'])  # register new message
-def add():  # REQUIRED: content, vector, microservice?
+def add():  # REQUIRED: content, microservice
     try:
         payload = request.json
-        payload['time'] = time()
-        payload['uuid'] = str(uuid4())
-        # TODO - handle vector here? 
-        # TODO - microservice?
-        # TODO - validate message payload
-        # TODO - model
-        # TODO - vector model?
-        save_log(payload)
-        print(payload)
+        # validating the payload
+        result = dict()
+        result['content'] = payload['content']
+        result['microservice'] = payload['microservice']
+        result['model'] = payload['model']
+        result['type'] = payload['type']
+        embeddings = embed([result['content']])
+        result['vector'] = embeddings.numpy().tolist()
+        result['time'] = time()
+        result['uuid'] = str(uuid4())
+        save_log(result)
+        print(result)
         return 'successfully added record', 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
@@ -130,6 +133,32 @@ def recent():
         return str(oops), 500, {'ContentType':'application/json'}
     
 
-
 if __name__ == '__main__':
+    embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder-large/5")  # USEv5 is about 100x faster than 4
     app.run(host='0.0.0.0', port=8888)
+
+
+'''
+distant future:
+
+blockchain for privacy (mostly)
+ - immutable (cannot change records later)
+ - tamper proof
+ - distributed (resilient, difficult to delete)
+ - consensus (transactions must be accepted by quorum) gating or filtering mechanism
+ - used to store raw data (permanent/long term)
+ - private ledger, several nodes (copy of nexus running at home, cloud, and on phone)
+
+semantic search DB (milvus/pinecone/weaviate)
+ - high speed semantic search
+ - loaded from the blockchain, regenerated as needed
+ - can be ephemeral or interchangeable
+ - start with SQLITE, upgrade to ELK, upgrade to Pinecone
+ - can be updated in real time
+
+knowledge graph
+ - would be populated from blockchain data
+ - can be regenerated as needed
+ - organizes thoughts/memories around topics rather than sequential in time or just a search index
+ - maybe gets updated periodically via a background "sleep" function
+'''
