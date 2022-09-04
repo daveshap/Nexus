@@ -24,7 +24,7 @@ def load_data():
     
 
 def save_log(payload):
-    filename = payload['uuid'] + '.json'
+    filename = 'log_%s_%s.json' % (payload['time'], payload['microservice'])
     with open('logs/%s' % filename, 'w', encoding='utf-8') as outfile:
         json.dump(payload, outfile, ensure_ascii=False, sort_keys=True, indent=1)
 
@@ -45,7 +45,7 @@ def add():  # REQUIRED: content, microservice
         result['time'] = time()
         result['uuid'] = str(uuid4())
         save_log(result)
-        print(result)
+        print(result['microservice'], result['content'])
         return 'successfully added record', 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
@@ -53,12 +53,15 @@ def add():  # REQUIRED: content, microservice
 
 
 @app.route('/search', methods=['POST'])  # return n number of top semantic matches
-def search():  # REQUIRED: vector, count
+def search():  # REQUIRED: query, count
     try:
-        results = list()
+        # validate payload first
         payload = request.json
         count = payload['count']
-        vector = payload['vector']
+        query = payload['query']
+        # get embedding
+        vector = embed([query]).numpy().tolist()[0]
+        results = list()
         data = load_data()
         for i in data:
             try:
@@ -85,16 +88,12 @@ def match():  # REQUIRED: field, value
     try:
         results = list()
         payload = request.json
-        data = load_data()
         field = payload['field']  # which field to search each record for
         value = payload['value']  # value of field to match
+        data = load_data()
         results = [i for i in data if i[field] == value]
-        ordered = sorted(results, key=lambda d: d[sortby], reverse=reverse)
-        try:
-            ordered = ordered[0:count]
-            return json.dumps(ordered), 200, {'ContentType':'application/json'}
-        except:
-            return json.dumps(ordered), 200, {'ContentType':'application/json'}
+        # TODO - limit?
+        return json.dumps(results), 200, {'ContentType':'application/json'}
     except Exception as oops:
         print(oops)
         return str(oops), 500, {'ContentType':'application/json'}
@@ -105,9 +104,9 @@ def bound():  # REQUIRED: upper_bound, lower_bound
     try:
         results = list()
         payload = request.json
-        data = load_data()
         lower_bound = payload['lower_bound']
         upper_bound = payload['upper_bound']
+        data = load_data()
         for i in data:
             try:
                 if i['time'] >= lower_bound and i['time'] <= upper_bound:
@@ -121,11 +120,10 @@ def bound():  # REQUIRED: upper_bound, lower_bound
 
 
 @app.route('/recent', methods=['POST'])
-def recent():
+def recent():  # REQUIRED: seconds
     try:
         payload = request.json
-        seconds = payload['seconds']
-        min_age = time() - seconds
+        min_age = time() - payload['seconds']
         data = load_data()
         results = [i for i in data if i['time'] >= min_age]
         return json.dumps(results), 200, {'ContentType':'application/json'}
